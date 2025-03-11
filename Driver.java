@@ -5,15 +5,18 @@ public class Driver {
 
     public static void main(String[] args) {
         QR code = new QR();
+        System.out.println(code.getWorkingBits());
         Scanner in = new Scanner(System.in);
         System.out.print("Enter your link here: ");
         String link = in.nextLine();
-
-        data.append(getBinarySize(link)); //character count
-        encode(link); //encoding...
-        code.encode(data.toString());
-
-
+        data.append(getBinarySize(link));
+        encode(link);
+        System.out.println(data.toString());
+        System.out.println(data.toString().length());
+        String allBits = code.getCodeBits(data.toString());
+        System.out.println(allBits);
+        System.out.println(allBits.length());
+        code.addBits(allBits); //adding data bits to qr code
         code.printCode();
     }
 
@@ -32,7 +35,11 @@ public class Driver {
         data.append("0000");
         int repeatingPatternLength = 53 - chars.length;
         for (int i = 0; i < repeatingPatternLength; i++) {
-            data.append("11101100");
+            if (i % 2 == 0) {
+                data.append("11101100");
+            } else {
+                data.append("00010001");
+            }
         }
     }
 
