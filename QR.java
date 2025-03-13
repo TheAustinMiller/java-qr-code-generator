@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public class QR {
     int[][] code = {{1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1},
@@ -65,14 +66,48 @@ public class QR {
                          {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                          {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
-    final int PICTURE_LENGTH = 1450; // 1450x1450 image
+    int[][] mask = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+                    {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                    {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+                    {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                    {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+                    {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                    {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+                    {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                    {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+                    {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                    {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+                    {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}};
+
+
+    final int PICTURE_LENGTH = 1850; // 1850x1850 image
     final int PIXEL_LENGTH = 29; // 29x29 pixel QR code
+    final int BUFFER = 200;
     BufferedImage image;
     Graphics2D canvas;
 
     public QR() {
         image = new BufferedImage(PICTURE_LENGTH, PICTURE_LENGTH, BufferedImage.TYPE_INT_RGB);
         canvas = image.createGraphics();
+        canvas.setColor(Color.white);
+        canvas.fillRect(0, 0, PICTURE_LENGTH, PICTURE_LENGTH);
     }
 
     public void addBits(String binaryData) {
@@ -107,44 +142,67 @@ public class QR {
     }
 
     public String getCodeBits(String dataBits) {
-        // Convert the binary string into integer codewords (8 bits per codeword)
+        // Convert data bits to codewords
         int dataCodewordsLength = dataBits.length() / 8;
         int[] dataCodewords = new int[dataCodewordsLength];
         for (int i = 0; i < dataCodewordsLength; i++) {
             dataCodewords[i] = Integer.parseInt(dataBits.substring(i * 8, (i + 1) * 8), 2);
         }
 
-        // Example error correction codewords (adjust based on your QR version and error level)
-        int errorCodewords = 15; // Example: 16 error codewords
+        // Error codewords for Version 3 L
+        int errorCodewords = 15;
 
-        // Use the ReedSolomon class to generate the error bits
-        ReedSolomon rs = new ReedSolomon(errorCodewords);
+        // Use a reliable Reed-Solomon library
+        ReedSolomon rs = new ReedSolomon(errorCodewords); // Assuming a ReedSolomon class is available
+
+        // Generate error codewords
         int[] errorCodewordsArray = rs.encode(dataCodewords, errorCodewords);
 
-        // Convert the error codewords back to binary string
+        // Convert error codewords to binary strings (8 bits each)
         StringBuilder errorBits = new StringBuilder();
         for (int codeword : errorCodewordsArray) {
-            String binary = Integer.toBinaryString(codeword & 0xFF); // Ensure only 8 bits are used
+            String binary = Integer.toBinaryString(codeword & 0xFF);
             while (binary.length() < 8) {
-                binary = "0" + binary; // Pad to 8 bits
+                binary = "0" + binary;
             }
             errorBits.append(binary);
         }
 
-        // Append the error bits to the end of the data bits
+        // Append error bits to data bits
         return dataBits + errorBits.toString();
+    }
+
+    public void mask() {
+        for (int i = 0; i < PIXEL_LENGTH; i++) {
+            for (int j = 0; j < PIXEL_LENGTH; j++) {
+                // Only apply the mask to data/error bits (where constants[i][j] == 0)
+                if (mask[i][j] == 1) {
+                    // Flip the bit
+                    code[i][j] = code[i][j] == 1 ? 0 : 1;
+                }
+            }
+        }
+    }
+
+    public void displayCode() {
+        for (int[] row : code) {
+            for (int value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
+        }
     }
 
 
     public void printCode() {
-        int xPos = 0, yPos = 0;
+        int xPos = BUFFER, yPos = BUFFER;
         for (int i = 0; i < PIXEL_LENGTH; i++) {
             for (int j = 0; j < PIXEL_LENGTH; j++) {
                 canvas.setColor(code[i][j] == 0 ? Color.white : Color.black);
                 canvas.fillRect(xPos, yPos, 50, 50);
                 xPos += 50;
             }
-            xPos = 0;
+            xPos = BUFFER;
             yPos += 50;
         }
 
