@@ -1,22 +1,32 @@
 import java.util.Scanner;
 
+
+/**
+ * Creates QR Code
+ * Version 3
+ * Error Correction L
+ * Byte Mode
+ * Mask 0
+ */
 public class Driver {
     static StringBuilder data = new StringBuilder("0100"); //mode
 
     public static void main(String[] args) {
         QR code = new QR();
-        System.out.println(code.getWorkingBits());
+
+        //INPUT
         Scanner in = new Scanner(System.in);
         System.out.print("Enter your link here: ");
         String link = in.nextLine();
+
+        //CALCULATION
         data.append(getBinarySize(link));
-        encode(link);
-        System.out.println(data.toString());
-        System.out.println(data.toString().length());
-        String allBits = code.getCodeBits(data.toString());
-        System.out.println(allBits);
-        System.out.println(allBits.length());
-        code.addBits(allBits); //adding data bits to qr code
+        encode(link); // encode data bits
+        String allBits = code.getCodeBits(data.toString()); //encode code bits
+        code.addBits(allBits);  //add all bits to the page
+        code.mask(); //mask them
+
+        //OUTPUT
         code.printCode();
     }
 
@@ -27,6 +37,7 @@ public class Driver {
     }
 
     public static void encode(String link) {
+
         char[] chars = link.toCharArray();
         for (char c: chars) {
             String bs = charToBinary(c);
