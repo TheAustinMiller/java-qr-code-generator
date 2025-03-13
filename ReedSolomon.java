@@ -1,5 +1,22 @@
 class ReedSolomon {
+    private static final int GF_SIZE = 256;
+    private static final int GF_PRIMITIVE_POLY = 0x11D;
     private final int[] generator;
+    private static final int[] gfExp = new int[GF_SIZE * 2];
+    private static final int[] gfLog = new int[GF_SIZE];
+
+    static {
+        // Generate Galois Field tables
+        int x = 1;
+        for (int i = 0; i < GF_SIZE - 1; i++) {
+            gfExp[i] = x;
+            gfLog[x] = i;
+            x = (x << 1) ^ (x >= 0x80 ? GF_PRIMITIVE_POLY : 0);
+        }
+        for (int i = GF_SIZE - 1; i < gfExp.length; i++) {
+            gfExp[i] = gfExp[i - (GF_SIZE - 1)];
+        }
+    }
 
     public ReedSolomon(int errorCodewords) {
         generator = generatePolynomial(errorCodewords);
@@ -8,7 +25,7 @@ class ReedSolomon {
     private int[] generatePolynomial(int errorCodewords) {
         int[] poly = {1};
         for (int i = 0; i < errorCodewords; i++) {
-            poly = multiply(poly, new int[]{1, gfExp(i)});
+            poly = multiply(poly, new int[]{1, gfExp[i]});
         }
         return poly;
     }
@@ -23,12 +40,9 @@ class ReedSolomon {
         return result;
     }
 
-    private int gfExp(int x) {
-        return (int) Math.pow(2, x) % 0x11D;
-    }
-
     private int gfMultiply(int a, int b) {
-        return (a * b) % 0x11D;
+        if (a == 0 || b == 0) return 0;
+        return gfExp[gfLog[a] + gfLog[b]];
     }
 
     public int[] encode(int[] data, int errorCodewords) {
