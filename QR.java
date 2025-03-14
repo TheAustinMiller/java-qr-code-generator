@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class QR {
+
+    //Gives the starting constants for the qr code
     int[][] code = {{1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1},
                     {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
                     {1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1},
@@ -36,6 +38,7 @@ public class QR {
                     {1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                     {1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
+    //These parts of the qr code will never change
     int[][] constants = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
                          {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
                          {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -66,6 +69,7 @@ public class QR {
                          {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                          {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
+    //Checkerboard mask (mask 0)
     int[][] mask = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
                     {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -103,6 +107,9 @@ public class QR {
     BufferedImage image;
     Graphics2D canvas;
 
+    /**
+     * Creates a new QR Code canvas
+     */
     public QR() {
         image = new BufferedImage(PICTURE_LENGTH, PICTURE_LENGTH, BufferedImage.TYPE_INT_RGB);
         canvas = image.createGraphics();
@@ -110,6 +117,10 @@ public class QR {
         canvas.fillRect(0, 0, PICTURE_LENGTH, PICTURE_LENGTH);
     }
 
+    /**
+     * Adds the data and error bits in a snaking pattern
+     * @param binaryData - The data and error bits in binary
+     */
     public void addBits(String binaryData) {
         int dataIndex = 0;
         int size = PIXEL_LENGTH; // Assuming PIXEL_LENGTH represents the QR code's size
@@ -141,6 +152,11 @@ public class QR {
         }
     }
 
+    /**
+     * Generates the error bits
+     * @param dataBits - The data bits in binary
+     * @return - The data bits followed by the error bits all in binary form
+     */
     public String getCodeBits(String dataBits) {
         // Convert data bits to codewords
         int dataCodewordsLength = dataBits.length() / 8;
@@ -152,13 +168,10 @@ public class QR {
         // Error codewords for Version 3 L
         int errorCodewords = 15;
 
-        // Use a reliable Reed-Solomon library
         ReedSolomon rs = new ReedSolomon(errorCodewords); // Assuming a ReedSolomon class is available
 
-        // Generate error codewords
         int[] errorCodewordsArray = rs.encode(dataCodewords, errorCodewords);
 
-        // Convert error codewords to binary strings (8 bits each)
         StringBuilder errorBits = new StringBuilder();
         for (int codeword : errorCodewordsArray) {
             String binary = Integer.toBinaryString(codeword & 0xFF);
@@ -172,6 +185,9 @@ public class QR {
         return dataBits + errorBits.toString();
     }
 
+    /**
+     * Adds the mask
+     */
     public void mask() {
         for (int i = 0; i < PIXEL_LENGTH; i++) {
             for (int j = 0; j < PIXEL_LENGTH; j++) {
@@ -184,6 +200,9 @@ public class QR {
         }
     }
 
+    /**
+     * Prints the qr code to the terminal
+     */
     public void displayCode() {
         for (int[] row : code) {
             for (int value : row) {
@@ -193,7 +212,9 @@ public class QR {
         }
     }
 
-
+    /**
+     * Creates a new jpg and prints the QR code to it
+     */
     public void printCode() {
         int xPos = BUFFER, yPos = BUFFER;
         for (int i = 0; i < PIXEL_LENGTH; i++) {
