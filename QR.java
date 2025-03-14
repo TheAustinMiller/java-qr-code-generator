@@ -100,6 +100,14 @@ public class QR {
                     {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
                     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}};
 
+    int[][] mask0;
+    int[][] mask1;
+    int[][] mask2;
+    int[][] mask3;
+    int[][] mask4;
+    int[][] mask5;
+    int[][] mask6;
+    int[][] mask7;
 
     final int PICTURE_LENGTH = 1850; // 1850x1850 image
     final int PIXEL_LENGTH = 29; // 29x29 pixel QR code
@@ -115,6 +123,7 @@ public class QR {
         canvas = image.createGraphics();
         canvas.setColor(Color.white);
         canvas.fillRect(0, 0, PICTURE_LENGTH, PICTURE_LENGTH);
+        makeMasks();
     }
 
     /**
@@ -185,13 +194,37 @@ public class QR {
         return dataBits + errorBits.toString();
     }
 
+    public void makeMasks() {
+        mask0 = new int[PIXEL_LENGTH][PIXEL_LENGTH];
+        mask1 = new int[PIXEL_LENGTH][PIXEL_LENGTH];
+        mask2 = new int[PIXEL_LENGTH][PIXEL_LENGTH];
+        mask3 = new int[PIXEL_LENGTH][PIXEL_LENGTH];
+        mask4 = new int[PIXEL_LENGTH][PIXEL_LENGTH];
+        mask5 = new int[PIXEL_LENGTH][PIXEL_LENGTH];
+        mask6 = new int[PIXEL_LENGTH][PIXEL_LENGTH];
+        mask7 = new int[PIXEL_LENGTH][PIXEL_LENGTH];
+        for (int i = 0; i < PIXEL_LENGTH; i++) {
+            for (int j = 0; j < PIXEL_LENGTH; j++) {
+                if (constants[i][j] == 0) {
+                    if ((i + j) % 2 == 0) { mask0[i][j] = 1; }
+                    if (i % 2 == 0) { mask1[i][j] = 1; }
+                    if (j % 3 == 0) { mask2[i][j] = 1; }
+                    if ((i + j) % 3 == 0) { mask3[i][j] = 1; }
+                    if ((i/2 + j/3) % 2 == 0) { mask4[i][j] = 1; }
+                    if ((i * j) % 2 + (i * j) % 3 == 0) { mask5[i][j] = 1; }
+                    if (((i * j) % 3 + i * j) % 2 == 0) { mask6[i][j] = 1; }
+                    if (((i * j) % 3 + i + j) % 2 == 0) { mask7[i][j] = 1; }
+                }
+            }
+        }
+    }
+
     /**
      * Adds the mask
      */
     public void mask() {
         for (int i = 0; i < PIXEL_LENGTH; i++) {
             for (int j = 0; j < PIXEL_LENGTH; j++) {
-                // Only apply the mask to data/error bits (where constants[i][j] == 0)
                 if (mask[i][j] == 1) {
                     // Flip the bit
                     code[i][j] = code[i][j] == 1 ? 0 : 1;
@@ -248,6 +281,68 @@ public class QR {
             }
         }
         return sum;
+    }
+
+    /**
+     * Verifying the masks...
+     */
+    public void printMasks() {
+        for (int[] row : mask0) {
+            for (int value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+        for (int[] row : mask1) {
+            for (int value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+        for (int[] row : mask2) {
+            for (int value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+        for (int[] row : mask3) {
+            for (int value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+        for (int[] row : mask4) {
+            for (int value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+        for (int[] row : mask5) {
+            for (int value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+        for (int[] row : mask6) {
+            for (int value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+        for (int[] row : mask7) {
+            for (int value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 
 }
