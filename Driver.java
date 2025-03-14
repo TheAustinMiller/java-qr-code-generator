@@ -1,12 +1,14 @@
 import java.util.Scanner;
 
-
 /**
  * Creates QR Code
  * Version 3
  * Error Correction L
  * Byte Mode
  * Mask 0
+ *
+ * @author - Austin Miller
+ * 03/13/2025
  */
 public class Driver {
     static StringBuilder data = new StringBuilder("0100"); //mode
@@ -18,6 +20,10 @@ public class Driver {
         Scanner in = new Scanner(System.in);
         System.out.print("Enter your link here: ");
         String link = in.nextLine();
+        while (link.length() > 53 || link.length() == 0) {
+            System.out.print("Link is invalid! Please provide a link up to 53 characters: ");
+            link = in.nextLine();
+        }
 
         //CALCULATION
         data.append(getBinarySize(link));
@@ -30,12 +36,20 @@ public class Driver {
         code.printCode();
     }
 
+    /**
+     * Returns the size of the link in binary
+     * @param input - The link
+     * @return - The size of the input converted to binary
+     */
     public static String getBinarySize(String input) {
         int size = input.length();
         String binaryString = Integer.toBinaryString(size);
         return String.format("%8s", binaryString).replace(' ', '0');
     }
 
+    /**
+     * @param link - Converts the link to binary; adds padding to the data bits
+     */
     public static void encode(String link) {
 
         char[] chars = link.toCharArray();
@@ -54,6 +68,10 @@ public class Driver {
         }
     }
 
+    /**
+     * @param character - Takes a single character from the link
+     * @return - The binary representation of the character
+     */
     public static String charToBinary(char character) {
         int asciiValue = (int) character;
         StringBuilder binary = new StringBuilder();
